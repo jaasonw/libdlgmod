@@ -1703,6 +1703,37 @@ namespace dialog_module {
     return cocoa_show_question(str_str.c_str(), true, current_icon.c_str(), (caption.empty()) ? "Question" : caption.c_str());
   }
   
+  int show_message_ext(const char *str, const char *but1, const char *but2, const char *but3) {
+    string ok = widget_get_button_name(BUTTON_OK), yes = widget_get_button_name(BUTTON_YES),
+      no = widget_get_button_name(BUTTON_NO), cancel = widget_get_button_name(BUTTON_CANCEL);
+    string str_but1 = but1, str_but2 = but2, str_but3 = but3;
+    int result;
+    if (str_but2.empty() && str_but3.empty()) {
+      widget_set_button_name(BUTTON_OK, str_but1.empty() ? ok.c_str() : but1);
+      show_message(str);
+      result = 1;
+    } else {
+      widget_set_button_name(BUTTON_YES, but1);
+      widget_set_button_name(BUTTON_NO, but2);
+      if (str_but3.empty()) {
+        result = show_question(str) ? 1 : 2;
+      } else {
+        widget_set_button_name(BUTTON_CANCEL, but3);
+        int answer = show_question_cancelable(str);
+        result = (answer == 1) ? 1 : ((answer == 0) ? 2 : 3);
+      }
+    }
+    widget_set_button_name(BUTTON_OK, ok.c_str());
+    widget_set_button_name(BUTTON_YES, yes.c_str());
+    widget_set_button_name(BUTTON_NO, no.c_str());
+    widget_set_button_name(BUTTON_CANCEL, cancel.c_str());
+    return result;
+  }
+
+  double show_menu(const char *str, double def) {
+    return def;
+  }
+
   int show_attempt(const char *str) {
     string str_str = str;
     return cocoa_show_attempt(str_str.c_str(), current_icon.c_str(), (caption.empty()) ? "Error" : caption.c_str());

@@ -35,6 +35,8 @@ EXPORTED_FUNCTION int show_message(const char *str);
 EXPORTED_FUNCTION int show_message_cancelable(const char *str);
 EXPORTED_FUNCTION int show_question(const char *str);
 EXPORTED_FUNCTION int show_question_cancelable(const char *str);
+EXPORTED_FUNCTION int show_message_ext(const char *str, const char *but1, const char *but2, const char *but3);
+EXPORTED_FUNCTION double show_menu(const char *str, double def);
 EXPORTED_FUNCTION int show_attempt(const char *str);
 EXPORTED_FUNCTION int show_error(const char *str, bool abort);
 EXPORTED_FUNCTION const char *get_string(const char *str, const char *def);
@@ -70,6 +72,8 @@ namespace dialog_module {
   int show_message_cancelable(const char *str);
   int show_question(const char *str);
   int show_question_cancelable(const char *str);
+  int show_message_ext(const char *str, const char *but1, const char *but2, const char *but3);
+  double show_menu(const char *str, double def);
   int show_attempt(const char *str);
   int show_error(const char *str, bool abort);
   const char *get_string(const char *str, const char *def);
@@ -115,6 +119,14 @@ inline int show_question(const char *str) {
 
 inline int show_question_cancelable(const char *str) {
   return dialog_module::show_question_cancelable(str);
+}
+
+inline int show_message_ext(const char *str, const char *but1, const char *but2, const char *but3) {
+  return dialog_module::show_message_ext(str, but1, but2, but3);
+}
+
+inline double show_menu(const char *str, double def) {
+  return dialog_module::show_menu(str, def);
 }
 
 inline int show_attempt(const char *str) {

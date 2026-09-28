@@ -581,6 +581,72 @@ int show_question_cancelable(const char *str) {
   return show_question_helperfunc(str);
 }
 
+int show_message_ext(const char *str, const char *but1, const char *but2, const char *but3) {
+  change_relative_to_qt();
+  string str_command;
+  string str_title = add_escaping(caption, true, "Information");
+  string str_iconflag = (dm_dialogengine == dm_zenity) ? " --window-icon=\"" : " --icon \"";
+  if (current_icon == "") current_icon = filename_absolute("assets/icon.png");
+  string str_icon = file_exists(current_icon) ? str_iconflag + add_escaping(current_icon, false, "") + string("\"") : "";
+  string caption_previous = caption;
+  caption = (str_title == "Information") ? "Information" : caption;
+  string labels[3] = { add_escaping(but1, true, btn_array[BUTTON_OK]), add_escaping(but2, false, ""), add_escaping(but3, false, "") };
+
+  if (dm_dialogengine == dm_zenity) {
+    str_command = string("ans=$(zenity --info --ok-label=\"") + labels[0] + string("\" ");
+    for (int i = 1; i < 3; i++)
+      if (!labels[i].empty()) str_command += string("--extra-button=\"") + labels[i] + string("\" ");
+    str_command += string("--title=\"") + str_title + string("\" --no-wrap --text=\"") + add_escaping(str, false, "") +
+    string("\" --icon-name=dialog-information") + str_icon + string(");if [ $? = 0 ] ;then echo 1;");
+    for (int i = 1; i < 3; i++)
+      if (!labels[i].empty()) str_command += string("elif [ \"$ans\" = \"") + labels[i] + string("\" ] ;then echo ") + to_string(i + 1) + string(";");
+    str_command += "else echo 0;fi";
+  }
+  else if (dm_dialogengine == dm_kdialog) {
+    if (labels[1].empty() && labels[2].empty()) {
+      str_command = string("kdialog --msgbox \"") + add_escaping(str, false, "") + string("\" --ok-label \"") + labels[0] + string("\" ") +
+      string("--title \"") + str_title + string("\"") + str_icon + string(";if [ $? = 0 ] ;then echo 1;else echo 0;fi");
+    } else {
+      str_command = string("kdialog --") + (labels[2].empty() ? "yesno" : "yesnocancel") + string(" \"") + add_escaping(str, false, "") + string("\" ") +
+      string("--yes-label \"") + labels[0] + string("\" --no-label \"") + labels[1] + string("\" ") +
+      (labels[2].empty() ? string("") : string("--cancel-label \"") + labels[2] + string("\" ")) +
+      string("--title \"") + str_title + string("\"") + str_icon + string(";echo $(($? + 1))");
+    }
+  }
+
+  string str_result = create_shell_dialog(str_command);
+  caption = caption_previous;
+  double result = strtod(str_result.c_str(), nullptr);
+  return (int)result;
+}
+
+double show_menu(const char *str, double def) {
+  change_relative_to_qt();
+  string str_command;
+  string str_title = add_escaping(caption, true, "Menu");
+  string str_iconflag = (dm_dialogengine == dm_zenity) ? " --window-icon=\"" : " --icon \"";
+  if (current_icon == "") current_icon = filename_absolute("assets/icon.png");
+  string str_icon = file_exists(current_icon) ? str_iconflag + add_escaping(current_icon, false, "") + string("\"") : "";
+  string caption_previous = caption;
+  caption = (str_title == "Menu") ? "Menu" : caption;
+  string str_items;
+  vector<string> items = string_split(str, '|');
+  for (size_t i = 0; i < items.size(); i++)
+    str_items += string(" ") + to_string(i) + string(" \"") + add_escaping(items[i], false, "") + string("\"");
+
+  if (dm_dialogengine == dm_zenity) {
+    str_command = string("ans=$(zenity --list --hide-header --column=i --column=t --hide-column=1 --print-column=1 --title=\"") +
+    str_title + string("\" --text=\"\"") + str_icon + str_items + string(");if [ $? = 0 ] ;then echo $ans;fi");
+  }
+  else if (dm_dialogengine == dm_kdialog) {
+    str_command = string("ans=$(kdialog --menu \"\"") + str_items + string(" --title \"") + str_title + string("\"") + str_icon + string(");if [ $? = 0 ] ;then echo $ans;fi");
+  }
+
+  string str_result = create_shell_dialog(str_command);
+  caption = caption_previous;
+  return str_result.empty() ? def : strtod(str_result.c_str(), nullptr);
+}
+
 int show_attempt(const char *str) {
   change_relative_to_qt();
   string str_command;
