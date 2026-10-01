@@ -41,6 +41,8 @@ EXPORTED_FUNCTION double show_question(char *str);
 EXPORTED_FUNCTION double show_question_async(char *str);
 EXPORTED_FUNCTION double show_question_cancelable(char *str);
 EXPORTED_FUNCTION double show_question_cancelable_async(char *str);
+EXPORTED_FUNCTION double show_message_ext(char *str, char *but1, char *but2, char *but3);
+EXPORTED_FUNCTION double show_menu(char *str, double def);
 EXPORTED_FUNCTION double show_attempt(char *str);
 EXPORTED_FUNCTION double show_attempt_async(char *str);
 EXPORTED_FUNCTION double show_error(char *str, double abort);
@@ -354,6 +356,14 @@ double show_question_cancelable_async(char *str) {
     return (double)id;
   }
   return dialog_identifier - 1;
+}
+
+double show_message_ext(char *str, char *but1, char *but2, char *but3) {
+  return dialog_module::show_message_ext(str, but1, but2, but3);
+}
+
+double show_menu(char *str, double def) {
+  return dialog_module::show_menu(str, def);
 }
 
 double show_attempt(char *str) {
