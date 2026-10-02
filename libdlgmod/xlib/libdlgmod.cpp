@@ -361,8 +361,14 @@ static inline void modify_shell_dialog(PROCID pid) {
 }
 
 string add_escaping(string str, bool is_caption, string new_caption) {
-  string result = str; if (is_caption && str == "") result = new_caption;
-  result = string_replace_all(result, "\"", "\\\"");
+  if (is_caption && str.empty()) str = new_caption;
+  string result;
+  result.reserve(str.size());
+  for (char character : str) {
+    if (character == '\\' || character == '"' || character == '$' || character == '`')
+      result += '\\';
+    result += character;
+  }
   return result;
 }
 
