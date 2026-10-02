@@ -72,6 +72,7 @@ namespace dialog_module {
   int show_message_cancelable(const char *str);
   int show_question(const char *str);
   int show_question_cancelable(const char *str);
+  // Zenity returns 0 without opening a dialog when nonempty but2 and but3 are identical.
   int show_message_ext(const char *str, const char *but1, const char *but2, const char *but3);
   double show_menu(const char *str, double def);
   int show_attempt(const char *str);

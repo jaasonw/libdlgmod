@@ -1704,29 +1704,35 @@ namespace dialog_module {
   }
   
   int show_message_ext(const char *str, const char *but1, const char *but2, const char *but3) {
-    string ok = widget_get_button_name(BUTTON_OK), yes = widget_get_button_name(BUTTON_YES),
-      no = widget_get_button_name(BUTTON_NO), cancel = widget_get_button_name(BUTTON_CANCEL);
-    string str_but1 = but1, str_but2 = but2, str_but3 = but3;
+    struct ButtonNames {
+      string ok = btn_array[BUTTON_OK], yes = btn_array[BUTTON_YES],
+        no = btn_array[BUTTON_NO], cancel = btn_array[BUTTON_CANCEL];
+      ~ButtonNames() noexcept {
+        btn_array[BUTTON_OK].swap(ok);
+        btn_array[BUTTON_YES].swap(yes);
+        btn_array[BUTTON_NO].swap(no);
+        btn_array[BUTTON_CANCEL].swap(cancel);
+      }
+    } previous;
+    str = str ? str : "";
+    string str_but1 = but1 ? but1 : "", str_but2 = but2 ? but2 : "", str_but3 = but3 ? but3 : "";
+    if (str_but1.empty()) str_but1 = previous.ok;
     int result;
     if (str_but2.empty() && str_but3.empty()) {
-      widget_set_button_name(BUTTON_OK, str_but1.empty() ? ok.c_str() : but1);
+      widget_set_button_name(BUTTON_OK, str_but1.c_str());
       show_message(str);
       result = 1;
     } else {
-      widget_set_button_name(BUTTON_YES, but1);
-      widget_set_button_name(BUTTON_NO, but2);
+      widget_set_button_name(BUTTON_YES, str_but1.c_str());
+      widget_set_button_name(BUTTON_NO, str_but2.empty() ? previous.no.c_str() : str_but2.c_str());
       if (str_but3.empty()) {
         result = show_question(str) ? 1 : 2;
       } else {
-        widget_set_button_name(BUTTON_CANCEL, but3);
+        widget_set_button_name(BUTTON_CANCEL, str_but3.c_str());
         int answer = show_question_cancelable(str);
         result = (answer == 1) ? 1 : ((answer == 0) ? 2 : 3);
       }
     }
-    widget_set_button_name(BUTTON_OK, ok.c_str());
-    widget_set_button_name(BUTTON_YES, yes.c_str());
-    widget_set_button_name(BUTTON_NO, no.c_str());
-    widget_set_button_name(BUTTON_CANCEL, cancel.c_str());
     return result;
   }
 
